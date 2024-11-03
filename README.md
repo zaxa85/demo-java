@@ -49,20 +49,22 @@ Click `Set up code scanning`.
 
 #### Setup Workflow
 
-Click the `Setup this workflow` button by CodeQL Analysis.
+Click the `Setup` dropdown and select the Default CodeQL Analysis.
 
-<img src="images/02-repo-security-setup-codeql-workflow.png" width="70%"/>
+![image](https://github.com/user-attachments/assets/294a1d2a-b58a-4874-bced-c22a76fe315a)
 
-This will create a GitHub Actions Workflow file with CodeQL already set up. Since Java is a compiled language you will need to setup the build in later steps. See the [documentation](https://docs.github.com/en/free-pro-team@latest/github/finding-security-vulnerabilities-and-errors-in-your-code/running-codeql-code-scanning-in-your-ci-system) if you would like to configure CodeQL Analysis with a 3rd party CI system instead of using GitHub Actions.
+This will trigger a CodeQL Scan without needing a workflow file. Since Java is a compiled language the file will use our out-of-the-box [Autobuild action](https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/codeql-code-scanning-for-compiled-languages) but if your application requires more customizable compilation steps, you can switch to the advanced setup and create a workflow file where you can input your desired steps. See the [documentation](https://docs.github.com/en/free-pro-team@latest/github/finding-security-vulnerabilities-and-errors-in-your-code/running-codeql-code-scanning-in-your-ci-system) if you would like to configure CodeQL Analysis with a 3rd party CI system instead of using GitHub Actions.
 </p>
 </details>
 
 <details>
   
-<summary>Actions Workflow file</summary>
+<summary>Actions Workflow file (No need to do anything!) </summary>
 <p>
 
 #### Actions Workflow
+
+As we're going with the Default Setup, this file is not necessary but in case you're curious, here how it looks like:
 
 The Actions Workflow file contains a number of different sections including:
 1. Checking out the repository
@@ -83,7 +85,12 @@ Click `Start Commit` -> `Commit this file` to commit the changes to _main_ branc
 
 #### Workflow triggers
 
-There are a [number of events](https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows) that can trigger a GitHub Actions workflow. In this example, the workflow will be triggered on
+There are a [number of events](https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows) that can trigger a GitHub Actions workflow. 
+
+In this example, with the default setup the triggers will be:
+![image](https://github.com/user-attachments/assets/6bcc8f35-8f04-45e3-aa1f-82fce86d60ae)
+
+Whereas with the workflow, it will be triggered on:
 
 <img src="images/04-actions-sample-events.png" width="50%"/>
 
@@ -164,9 +171,27 @@ Click `show paths` in order to see the dataflow path that resulted in this alert
 
 <details>
 <p>  
+<summary>Fix the Security Alert (with Copilot)</summary> 
+<p>
+In order to fix this specific alert, we will need to ensure parameters used in the SQL query is validated and sanitized. We will solve this with the power of Copilot!
+</p>
+Open the file [`IndexController.java`](./src/main/java/com/github/hackathon/advancedsecurityjava/Controllers/IndexController.java) in the `Controllers` folder and select line 40. Once highlighted, select `Shift` on your keyboard and click line 53. Finally, click on the Copilot icon that appears to the side of the highlighted code. 
   
-<summary>Fix the Security Alert</summary>
+![image](https://github.com/user-attachments/assets/2251deb3-2498-4f2f-a355-e35b37de58a4)
 
+Ask Copilot the following prompt or feel free to try with a prompt of your own!
+- English: Rewrite this method to prevent a SQL injection
+- Spanish: Reescribe este método para prevenir SQL injection
+
+Integrate the suggested code in your Index Controller. Make sure to click [Edit](https://docs.github.com/en/free-pro-team@latest/github/managing-files-in-a-repository/editing-files-in-your-repository) on the file. 
+
+Click `Create a new branch for this commit and start a pull request`, name the branch `fix-sql-injection`, and create the Pull Request.
+
+</details>
+<details>
+<p>
+<summary>Fix the Security Alert (without Copilot)</summary>
+</p>
 In order to fix this specific alert, we will need to ensure parameters used in the SQL query is validated and sanitized.
 
 Click on the `Code` tab and [Edit](https://docs.github.com/en/free-pro-team@latest/github/managing-files-in-a-repository/editing-files-in-your-repository) the file [`IndexController.java`](./src/main/java/com/github/hackathon/advancedsecurityjava/Controllers/IndexController.java) in the `Controllers` folder, replace the content with the file [`fixme`](./fixme).
@@ -175,6 +200,12 @@ Click on the `Code` tab and [Edit](https://docs.github.com/en/free-pro-team@late
 
 Click `Create a new branch for this commit and start a pull request`, name the branch `fix-sql-injection`, and create the Pull Request.
 
+</details>
+<details>
+<p>
+<summary>Re-Scan your code after new changes</summary>
+</p>
+  
 #### Pull Request Status Check
 
 In the Pull Request, you will notice that the CodeQL Analysis has started as a status check. Wait until it completes.
@@ -255,6 +286,34 @@ Click on `Show more details` by the new `Code Scanning Alert` to jump to the `Se
 
 Notice that the security alert was found `In pull request` and not in the `main` branch (production).
 
+
+</p>
+</details>
+<details>
+<p><summary>(Bonus) Enable Secret Scanning</summary></p>
+<p>
+Click on `Settings` and select `Code Security` from the menu on the left.
+  
+![image](https://github.com/user-attachments/assets/d56f94fb-5623-481f-b850-291248104304)
+
+Find the options for Secret Scanning and Push Protection and make sure they are both Enabled. When they are it should say disabled, similar to this image:
+
+![image](https://github.com/user-attachments/assets/23f92127-bef0-4107-91e2-00a802daff47)
+
+</p>
+</details>
+<details>
+<p><summary>(Bonus) Try to introduce a Secret</summary></p>
+<p>
+
+Find yourself a secret that matches any of the [supported secrets](https://docs.github.com/en/code-security/secret-scanning/introduction/supported-secret-scanning-patterns#supported-secrets) and try to commit the value to the Repo. You could commit it to any file! Refer to the previous activities to refresh how Edit and Commit a change. 
+
+If you received an error, you've done it right!!
+
+If you didn't receive an error, this may be why:
+1. The secret is not supported out-of-the-box. For secrets not in the [supported secrets](https://docs.github.com/en/code-security/secret-scanning/introduction/supported-secret-scanning-patterns#supported-secrets) list, you will need to [create a Custom Pattern](https://docs.github.com/en/enterprise-cloud@latest/code-security/secret-scanning/using-advanced-secret-scanning-and-push-protection-features/custom-patterns/defining-custom-patterns-for-secret-scanning) first.
+2. The secret was already leaked and you already have an Open Alert in your Security page. Why cry over spilled milk?!
+3. Check again that Push Protection is enabled on your Repo!
 
 </p>
 </details>
