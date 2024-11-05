@@ -26,6 +26,8 @@ public class Application {
 	public static String connectionString = "jdbc:sqlite:database.sqlite";
 	//user=admin; password=PA$$W0RD!
 	//{user: myuser, password: mypassword, host: example.com, port: 33060}
+	//azure_sql_password=ASDSAD@#$@T@#@REFESFDS
+	
 	public static final Logger logger = LogManager.getLogger();
   
 	public static void main(String[] args) {
