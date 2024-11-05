@@ -24,7 +24,7 @@ import org.apache.logging.log4j.Logger;
 public class Application {
 
 	public static String connectionString = "jdbc:sqlite:database.sqlite";
-
+	//user=admin; password=PA$$W0RD!
 	public static final Logger logger = LogManager.getLogger();
   
 	public static void main(String[] args) {
